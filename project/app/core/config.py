@@ -29,17 +29,4 @@ class Settings(BaseSettings):
     class Config:
         env_file = ".env"
 
-
 settings = Settings()
-
-
-# BRONZE_PATH = "/opt/airflow/data/bronze"
-# SILVER_PATH = "/opt/airflow/data/silver"
-
-# RAW_SCRIPT = "/opt/airflow/dags/bronze_raw_extraction.py"
-# BRONZE_SCRIPT = "/opt/airflow/dags/bronze_ingestion.py"
-# BRONZE_MONITOR = "/opt/airflow/dags/bronze_monitor.py" 
-# ERROR_DIR = "/opt/airflow/error_logs"
-
-# SILVER_INGEST = "/opt/airflow/dags/silver_ingestion.py"
-# GOLD_INGEST = "/opt/airflow/dags/gold_ingestion.py"

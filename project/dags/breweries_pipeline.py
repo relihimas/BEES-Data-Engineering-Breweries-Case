@@ -8,8 +8,8 @@ from app.bronze.http_client import BreweryApiClient
 from app.bronze.repository import BronzeRepository
 from app.silver.repository import SilverRepository
 from app.silver.transformer import SilverTransformer
-from project.app.gold.repository import GoldRepository
-from project.app.gold.transformer import GoldTransformer
+from app.gold.repository import GoldRepository
+from app.gold.transformer import GoldTransformer
 
 def bronze_task():
     BronzeService(
