@@ -1,5 +1,5 @@
 # <img width="127" height="51" alt="Captura de Tela 2025-11-27 às 13 12 47" src="https://github.com/user-attachments/assets/d61c7c6d-79e0-48d3-a980-1ae2e2a8fd96" />
-BEES Data Engineering - Breweries Case - Rachid
+BEES Data Engineering - Breweries Case
 
 ## 👷 Main Architecture:
 
@@ -35,7 +35,6 @@ Bronze Layer|Silver Layer|Gold Layer|
 |---|---|---|
 |bronze_breweries_simulation|silver_breweries|gold_breweries
 |bronze_breweries|-|-|
-|bronze_monitor|-|-|
 
 - Programming Language: Python with PySpark.
 - DataLake Architecture: Medallion Architecture.
@@ -45,10 +44,10 @@ Bronze Layer|Silver Layer|Gold Layer|
 Git clone this repository and run the following Docker commands:
 
 ```git
-   git clone https://github.com/relihimas/BEES-Data-Engineering-Breweries-Case-Rachid.git
+   git clone https://github.com/relihimas/BEES-Data-Engineering-Breweries-Case.git
 ```
 ```
-   cd BEES-Data-Engineering-Breweries-Case-Rachid
+   cd BEES-Data-Engineering-Breweries-Case
 ```
 ```
    docker compose build --no-cache && docker compose up -d && docker compose ps
