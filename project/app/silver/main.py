@@ -1,12 +1,9 @@
 from app.silver.service import SilverService
 from app.silver.repository import SilverRepository
-from app.silver.transformer import SilverTransformer
-
 
 def run_silver():
     service = SilverService(
-        repository=SilverRepository(),
-        transformer=SilverTransformer(),
+        repository=SilverRepository()
     )
     service.run()
 

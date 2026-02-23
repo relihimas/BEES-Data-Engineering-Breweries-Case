@@ -1,30 +1,29 @@
 from app.gold.repository import GoldRepository
-from app.gold.transformer import GoldTransformer
+from app.core.spark_manager import SparkJDBC, SparkTransformer
+from app.core.config import settings
 from app.core.logging import get_logger
 
 logger = get_logger("gold-service")
-
 
 class GoldService:
 
     def __init__(
         self,
         repository: GoldRepository,
-        transformer: GoldTransformer,
+        sparktransformer: SparkTransformer,
+        sparkjdbc: SparkJDBC
     ):
         self.repository = repository
-        self.transformer = transformer
+        self.sparktransformer = sparktransformer
+        self.sparkjdbc = sparkjdbc
 
     def run(self) -> None:
         logger.info("Gold pipeline started")
 
-        rows = self.repository.fetch_from_silver()
-        logger.info(f"Fetched {len(rows)} records from Silver")
-
-        aggregated = self.transformer.aggregate(rows)
+        aggregated = self.sparktransformer.gold_transform_breweries(settings.silver_path)
         logger.info(f"{len(aggregated)} aggregated rows generated")
 
         self.repository.truncate()
-        self.repository.insert(aggregated)
+        self.sparkjdbc.write_table(aggregated, settings.gold_table, mode="overwrite")
 
         logger.info("Gold pipeline completed successfully")

@@ -8,3 +8,7 @@ class ApiException(BronzeException):
 
 class DatabaseException(BronzeException):
     pass
+
+
+class SparkException(Exception):
+    pass

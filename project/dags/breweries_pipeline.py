@@ -7,9 +7,7 @@ from app.gold.service import GoldService
 from app.bronze.http_client import BreweryApiClient
 from app.bronze.repository import BronzeRepository
 from app.silver.repository import SilverRepository
-from app.silver.transformer import SilverTransformer
 from app.gold.repository import GoldRepository
-from app.gold.transformer import GoldTransformer
 
 def bronze_task():
     BronzeService(
@@ -20,13 +18,11 @@ def bronze_task():
 def silver_task():
     SilverService(
         repository=SilverRepository(),
-        transformer=SilverTransformer(),
     ).run()
 
 def gold_task():
     GoldService(
         repository=GoldRepository(),
-        transformer=GoldTransformer(),
     ).run()
 
 with DAG(

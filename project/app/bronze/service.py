@@ -19,10 +19,13 @@ class BronzeService:
         logger.info("Bronze pipeline started")
 
         breweries = self.api_client.fetch_all()
+        
         logger.info(f"Fetched {len(breweries)} breweries")
 
-        self.repository.truncate_simulation()
-        self.repository.insert_simulation(breweries)
+        self.repository.transform_and_load_sim(breweries)
+
+        logger.info("Data loaded into bronze simulation table")
+
         self.repository.promote_to_bronze()
 
         logger.info("Bronze pipeline completed successfully")
