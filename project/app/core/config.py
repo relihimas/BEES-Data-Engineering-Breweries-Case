@@ -12,6 +12,11 @@ class Settings(BaseSettings):
     postgres_conn_id: str = "postgres_conn"
     postgres_url: str = "jdbc:postgresql://postgres:5432/airflow"
 
+    # SPARK
+    spark_app_name: str = "bees-data-platform"
+    spark_master: str = "local[*]"
+    spark_postgres_jar: str = "/opt/airflow/jars/postgresql-42.7.3.jar"
+
     # API
     metadata_url: str = "https://api.openbrewerydb.org/v1/breweries/meta"
     breweries_url: str = "https://api.openbrewerydb.org/v1/breweries"
