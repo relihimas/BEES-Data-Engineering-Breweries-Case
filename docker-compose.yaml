@@ -26,6 +26,10 @@ x-airflow-common:
     AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
     AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
     AIRFLOW__CORE__EXECUTION_API_SERVER_URL: 'http://airflow-apiserver:8080/execution/'
+    AIRFLOW__METRICS__STATSD_ON: "True"
+    AIRFLOW__METRICS__STATSD_HOST: statsd-exporter
+    AIRFLOW__METRICS__STATSD_PORT: "9125"
+    AIRFLOW__METRICS__STATSD_PREFIX: airflow
     # yamllint disable rule:line-length
     # Use simple http server on scheduler for health checks
     # See https://airflow.apache.org/docs/apache-airflow/stable/administration-and-deployment/logging-monitoring/check-health.html#scheduler-health-check-server
@@ -348,6 +352,37 @@ services:
       - spark-master
     networks:
       - airflow
+  
+  statsd-exporter:
+    image: prom/statsd-exporter:v0.26.1
+    container_name: statsd-exporter
+    command:
+      - "--statsd.listen-udp=:9125"
+      - "--web.listen-address=:9102"
+      - "--statsd.mapping-config=/etc/statsd/mappings.yml"
+    ports:
+      - "9102:9102"
+    volumes:
+      # arquivo de mappings:
+      - ./monitoring/statsd-mappings.yml:/etc/statsd/mappings.yml
+    networks:
+      - airflow
+  
+  prometheus:
+    image: prom/prometheus:v2.55.0
+    container_name: prometheus
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./monitoring/prometheus-data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+    ports:
+      - "9090:9090"
+    networks:
+      - airflow
+    depends_on:
+      - statsd-exporter
 
   loki:
     image: grafana/loki:2.9.8

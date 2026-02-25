@@ -34,6 +34,13 @@ def test_write_silver_table(monkeypatch):
     repo.write_silver_table(fake_df)
     sm.SparkJDBC.write_table.assert_called_once()
 
+from unittest.mock import MagicMock
+from contextlib import contextmanager
+
+from app.silver.repository import SilverRepository
+import app.silver.repository as silver_repository_module  # 👈 importa o módulo
+
+
 def test_truncate(monkeypatch):
     repo = SilverRepository()
 
@@ -45,10 +52,15 @@ def test_truncate(monkeypatch):
     def fake_get_connection():
         yield fake_conn
 
-    import app.core.database as db
-    monkeypatch.setattr(db, "get_connection", fake_get_connection)
+    monkeypatch.setattr(
+        silver_repository_module,
+        "get_connection",
+        fake_get_connection,
+    )
 
+    # act
     repo.truncate()
 
+    # asserts
     fake_cursor.execute.assert_called_once()
     fake_conn.commit.assert_called_once()
