@@ -19,7 +19,7 @@ class BronzeRepository:
         except Exception as e:
             raise DatabaseException(str(e))
 
-    def transform_and_load_sim(breweries: List[Brewery]):
+    def transform_and_load_sim(self, breweries: List[Brewery]):
         try:
             df_breweries = SparkTransformer.bronze_transform_breweries(breweries)
             SparkJDBC.write_table(df_breweries, 
