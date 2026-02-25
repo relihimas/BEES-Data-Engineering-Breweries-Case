@@ -1,35 +1,16 @@
+# tests/test_bronze_service.py
+from unittest.mock import MagicMock
 from app.bronze.service import BronzeService
-from app.bronze.schemas import Brewery
-
-
-class FakeApiClient:
-    def fetch_all(self):
-        return [
-            Brewery(id="1", name="A"),
-            Brewery(id="2", name="B"),
-        ]
-
-
-class FakeRepository:
-    def __init__(self):
-        self.received = None
-        self.promoted = False
-
-    def transform_and_load_sim(self, breweries):
-        self.received = breweries
-
-    def promote_to_bronze(self):
-        self.promoted = True
-
 
 def test_bronze_service_run():
-    api = FakeApiClient()
-    repo = FakeRepository()
+    api_client = MagicMock()
+    repository = MagicMock()
 
-    service = BronzeService(api_client=api, repository=repo)
+    api_client.fetch_all.return_value = ["brew1", "brew2"]
 
+    service = BronzeService(api_client=api_client, repository=repository)
     service.run()
 
-    assert repo.received is not None
-    assert len(repo.received) == 2
-    assert repo.promoted is True
+    api_client.fetch_all.assert_called_once()
+    repository.transform_and_load_sim.assert_called_once_with(["brew1", "brew2"])
+    repository.promote_to_bronze.assert_called_once()

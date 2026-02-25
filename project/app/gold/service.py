@@ -21,7 +21,7 @@ class GoldService:
         logger.info("Gold pipeline started")
 
         aggregated = self.sparktransformer.gold_transform_breweries(settings.silver_path)
-        logger.info(f"{len(aggregated)} aggregated rows generated")
+        logger.info(f"Transformed {aggregated.count()} records")
 
         self.repository.truncate()
         self.sparkjdbc.write_table(aggregated, settings.gold_table, mode="overwrite")

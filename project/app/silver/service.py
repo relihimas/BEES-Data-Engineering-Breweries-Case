@@ -22,7 +22,7 @@ class SilverService:
         logger.info("Silver pipeline started")
 
         transformed = self.sparktransformer.silver_transform_breweries(settings.bronze_table)
-        logger.info(f"{len(transformed)} records after transformation")
+        logger.info(f"Transformed {transformed.count()} records")
 
         self.repository.truncate()
         self.repository.write_silver_parquet(transformed)

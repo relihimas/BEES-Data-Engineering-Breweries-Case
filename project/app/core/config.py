@@ -27,7 +27,7 @@ class Settings(BaseSettings):
 
     # Silver tables
     silver_table: str = "silver_breweries"
-    silver_path: str = "/data/silver/breweries" 
+    silver_path: str = "/opt/airflow/data/silver" 
 
     # Gold tables
     gold_table: str = "gold_breweries"

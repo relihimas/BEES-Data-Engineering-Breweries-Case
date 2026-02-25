@@ -12,8 +12,7 @@ class BronzeRepository:
             with get_connection() as conn:
                 with conn.cursor() as cur:
                     cur.execute(f"TRUNCATE TABLE {settings.bronze_table};")
-                    cur.execute(f"INSERT INTO {settings.bronze_table} \
-                                SELECT * FROM {settings.bronze_simulation_table};")
+                    cur.execute(f"INSERT INTO {settings.bronze_table} SELECT id, name, brewery_type, address_1, address_2, address_3, street, city, state_province, state, postal_code, country, longitude, latitude, phone, website_url FROM {settings.bronze_simulation_table};")
                     cur.execute(f"TRUNCATE TABLE {settings.bronze_simulation_table};")
                 conn.commit()
         except Exception as e:

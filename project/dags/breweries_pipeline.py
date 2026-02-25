@@ -1,6 +1,7 @@
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from datetime import datetime
+from app.core.spark_manager import SparkJDBC, SparkTransformer
 from app.bronze.service import BronzeService
 from app.silver.service import SilverService
 from app.gold.service import GoldService
@@ -18,16 +19,19 @@ def bronze_task():
 def silver_task():
     SilverService(
         repository=SilverRepository(),
+        sparkjdbc=SparkJDBC(),
+        sparktransformer=SparkTransformer()
     ).run()
 
 def gold_task():
     GoldService(
         repository=GoldRepository(),
+        sparkjdbc=SparkJDBC(),
+        sparktransformer=SparkTransformer()
     ).run()
 
 with DAG(
     dag_id="breweries_full_pipeline",
-    start_date=datetime(2025, 1, 1),
     catchup=False,
 ) as dag:
 
