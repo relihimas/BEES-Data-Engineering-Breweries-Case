@@ -1,6 +1,9 @@
 from pyspark.sql import SparkSession, DataFrame
+<<<<<<< HEAD
 from pyspark.sql.types import StructType, StructField, StringType, IntegerType, DoubleType
 import pyspark.sql.functions as f
+=======
+>>>>>>> 765fe348259ded38b0f7d5a5adcfb80bffbaf330
 from app.core.config import settings
 from app.core.logging import get_logger
 
@@ -85,6 +88,7 @@ class SparkJDBC:
             .partitionBy(*partitions)
             .option("compression", "snappy")
             .save(path)
+<<<<<<< HEAD
         )
     
     @staticmethod
@@ -152,3 +156,6 @@ class SparkTransformer:
         df_gold_transf = df_gold.groupBy("country","state","city","brewery_type").agg(f.count("*").alias("brewery_count")).sort("country","state","city")
 
         return df_gold_transf
+=======
+        )
+>>>>>>> 765fe348259ded38b0f7d5a5adcfb80bffbaf330
