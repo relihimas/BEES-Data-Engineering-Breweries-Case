@@ -354,8 +354,10 @@ services:
       - airflow
   
   statsd-exporter:
-    image: prom/statsd-exporter:v0.26.1
-    container_name: statsd-exporter
+    image: 
+      prom/statsd-exporter:v0.26.1
+    container_name: 
+      statsd-exporter
     command:
       - "--statsd.listen-udp=:9125"
       - "--web.listen-address=:9102"
@@ -363,8 +365,7 @@ services:
     ports:
       - "9102:9102"
     volumes:
-      # arquivo de mappings:
-      - ./monitoring/statsd-mappings.yml:/etc/statsd/mappings.yml
+      - ./project/monitoring/statsd-mappings.yml:/etc/statsd/mappings.yml
     networks:
       - airflow
   
@@ -372,7 +373,7 @@ services:
     image: prom/prometheus:v2.55.0
     container_name: prometheus
     volumes:
-      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./project/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
       - ./monitoring/prometheus-data:/prometheus
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
@@ -388,8 +389,9 @@ services:
     image: grafana/loki:2.9.8
     container_name: loki
     volumes:
-      - ./monitoring/loki-config.yaml:/etc/loki/loki-config.yaml
-    command: -config.file=/etc/loki/local-config.yaml
+      - ./project/monitoring/loki-config.yaml:/etc/loki/loki-config.yaml
+    command: 
+      -config.file=/etc/loki/loki-config.yaml
     ports:
       - "3100:3100"
     networks:
@@ -400,7 +402,7 @@ services:
     container_name: promtail
     volumes:
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
-      - ./monitoring/promtail-config.yaml:/etc/promtail/config.yaml
+      - ./project/monitoring/promtail-config.yaml:/etc/promtail/config.yaml
     command: -config.file=/etc/promtail/config.yaml
     depends_on:
       - loki
@@ -417,7 +419,7 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=admin
     volumes:
       - grafana-storage:/var/lib/grafana
-      - ./monitoring/grafana-datasource.yaml:/etc/grafana/provisioning/datasources/datasource.yaml
+      - ./project/monitoring/grafana-datasource.yaml:/etc/grafana/provisioning/datasources/datasource.yaml
     depends_on:
       - loki
     networks:

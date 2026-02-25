@@ -11,7 +11,6 @@ default_args = {
 with DAG(
     dag_id="run_pipeline_tests",
     default_args=default_args,
-    schedule_interval=None,
     catchup=False,
     tags=["tests", "qa"],
 ) as dag:

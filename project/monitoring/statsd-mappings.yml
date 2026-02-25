@@ -1,0 +1,105 @@
+mappings:
+
+  #
+  # =========================
+  # AIRFLOW - TASK INSTANCES
+  # =========================
+  #
+
+  # Task successes
+  - match: "airflow.ti_successes.(.*)"
+    name: "airflow_task_success_total"
+    labels:
+      dag_id: "$1"
+    help: "Total successful task instances per DAG"
+
+  # Task failures
+  - match: "airflow.ti_failures.(.*)"
+    name: "airflow_task_failure_total"
+    labels:
+      dag_id: "$1"
+    help: "Total failed task instances per DAG"
+
+  # Task duration timing
+  - match: "airflow.ti_duration.(.*)"
+    name: "airflow_task_duration_seconds"
+    timer_type: "histogram"
+    labels:
+      dag_id: "$1"
+    help: "Task duration in seconds"
+
+  #
+  # =========================
+  # AIRFLOW - OPERATORS
+  # =========================
+  #
+
+  - match: "airflow.operator_successes_(.*)"
+    name: "airflow_operator_success_total"
+    labels:
+      operator: "$1"
+    help: "Successful operator executions"
+
+  - match: "airflow.operator_failures_(.*)"
+    name: "airflow_operator_failure_total"
+    labels:
+      operator: "$1"
+    help: "Failed operator executions"
+
+  #
+  # =========================
+  # AIRFLOW - SCHEDULER
+  # =========================
+  #
+
+  - match: "airflow.scheduler_heartbeat"
+    name: "airflow_scheduler_heartbeat_total"
+    help: "Scheduler heartbeat counter"
+
+  - match: "airflow.zombies_killed"
+    name: "airflow_zombies_killed_total"
+    help: "Zombie tasks killed by scheduler"
+
+  #
+  # =========================
+  # AIRFLOW - DAG PROCESSING
+  # =========================
+  #
+
+  - match: "airflow.dag_processing.processes"
+    name: "airflow_dag_processing_processes"
+    help: "Number of DAG file processors running"
+
+  - match: "airflow.dag_processing.import_errors"
+    name: "airflow_dag_import_errors_total"
+    help: "Number of DAG import errors"
+
+  #
+  # =========================
+  # CUSTOM APP METRICS
+  # =========================
+  #
+
+  - match: "app.job_success"
+    name: "app_job_success_total"
+    help: "Successful job executions"
+
+  - match: "app.job_failure"
+    name: "app_job_failure_total"
+    help: "Failed job executions"
+
+  - match: "app.job_duration_seconds"
+    name: "app_job_duration_seconds"
+    timer_type: "histogram"
+    help: "Job execution duration"
+
+  #
+  # =========================
+  # DEFAULT FALLBACK
+  # =========================
+  #
+
+  # Catch-all for other airflow metrics
+  - match: "airflow.(.*)"
+    name: "airflow_${1}"
+    help: "Generic Airflow metric"
