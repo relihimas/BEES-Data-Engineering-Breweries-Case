@@ -374,7 +374,7 @@ services:
     container_name: prometheus
     volumes:
       - ./project/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
-      - ./monitoring/prometheus-data:/prometheus
+      - prometheus-data:/prometheus
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
       - "--storage.tsdb.path=/prometheus"
@@ -427,4 +427,6 @@ services:
 
 volumes:
   postgres-db-volume:
+  redis-db-volume:
   grafana-storage:
+  prometheus-data:
