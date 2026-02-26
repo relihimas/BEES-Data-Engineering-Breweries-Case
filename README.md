@@ -24,10 +24,11 @@ The goal of this test is to assess your skills in consuming data from an API, tr
 - Python scripts reach the Breweries data source to extract, transform and load the data into a Postgres database, orchestrated through Airflow on predefined schedule.
 - Grafana orchestrates the monitoring and alerts using Loki, Promtail and Prometheus.
 
-## Features
+## Stack
 - Breweries Data: Open Brewery DB API to fetch data, listing breweries companies: [Open Brewery DB](https://www.openbrewerydb.org/).
 - Docker: Docker Compose with other Dockerfiles to support.
 - Orchestration: Airflow v3.1.3.
+- Monitoring & Alerts: Grafana v10.4.2 / Promtail v2.9.8 / Loki v2.9.8 / Prometheus v2.55.0 / Statsd-exporter v0.26.1.
 - Database: Postgres SQL (already provided by Airflow).
   - Tables:
 
@@ -101,45 +102,73 @@ And SELECT * or SELECT COUNT(*) the tables informed before.
     }
    ```
 
-## Detailing the Pipeline
+## Detailing the Project
 
-On the folder ./project you will find a folder for each layer and a core folder, to sustain the 
+The app folder contains all layers (Bronze, Silver and Gold) have a similar structure following:
 
-`bronze_raw_extraction.py`
+`main.py`
 
-This script connects to the data source, extracting from the API all available registries for the Breweries.
-Writes the extracted data into the bronze_breweries_simulation and replicates it to a json file for retention and recovery.
+> Python file to set up which classes will be used further on the service file, for each layer.
 
-> For further expansion the json file will be sent to a S3 Bucket as shown on the architecture - /raw.
+`service.py`
 
-`bronze_ingestion.py`
+> Python file to set up each step the code will process, for each layer.
 
-This script truncates the bronze_breweries table to avoid duplicated data, insert the new data from the bronze_breweries_simulation and truncates it at the end.
+`repository.py`
 
-`bronze_monitor.py`
+> Python file to run each step defined on the service file using the core settings, for each layer.
 
-This script creates a new line at the bronze_monitor to monitor amount of breweries extracted, source endpoint, source query, when the query has runned and a id for tracking.
-This id is also updated on the bronze_breweries, for traceability.
+`schemas.py`
 
-   ```json
-   {
-      "total_amount_breweries": 9.038,
-      "source_endpoint": "https://api.openbrewerydb.org/v1/breweries",
-      "source_query": "page=47&per_page=200",
-      "creation_timestamp": "20251127 14:53:52",
-      "batch_id": "8b52-d06be5",
-   }
-   ```
+> Python file to retain the correct schema for data validation and quality, for each layer. 
 
-`bronze_orchestrator.py`
+The core folder, within app folder,  has all setting and other reusable code for the project run:
 
-This script orchestrates all previous bronze scripts. If any error occurs, a json containing the error will be created and stored for further review.
+`config.py`
 
-> For further expansion the parquet files will be sent to a S3 Bucket as shown on the architecture - /error_logs.
+> Python file to set up variables.
 
-`silver_ingestion.py`
+`database.py`
 
-This script reads the data from bronze_breweries and apply the following transformations:
+> Python file to set the Postgres database connection.
+
+`exceptions.py`
+
+> Python file to set up the exceptions for error handling.
+
+`logging.py`
+
+> Python file to set up the logging properties.
+
+`spark_manager.py`
+
+> Python file to set up Spark functions to be reusable and clean code.
+
+The dags folder contains all DAGs usend on the project
+
+`breweries_pipelne.py`
+
+> Python file which contain the DAG for running the project pipeline.
+
+`test_dag.py`
+
+> Python file which contain the DAG for running the unit tests.
+
+The db folder contains a SQL file that is used during the initialization of the project to set up the tables.
+
+The monitoring folder contains all yml/yaml files that is used during the initialization of the project to set up the monitoring and alerts properties.
+
+The tests folder contains all python files related to the unit tests.
+
+### Pipeline Steps
+
+#### bronze
+
+- Connects to the data source, extracting from the API all available registries for the Breweries.
+- Writes the extracted data into the bronze_breweries_simulation for retention and recovery.
+- After truncates the bronze_breweries table to avoid duplicated data, insert the new data from the bronze_breweries_simulation and truncates it at the end.
+
+#### silver
 
 - Truncate the silver_breweries table
 - Drop columns - "id", "address_1", "address_2", "address_3", "postal_code", "phone", "state_province", "website_url", "longitude", "latitude", "street", "created_at", "updated_at" and "batch_id"
@@ -149,39 +178,12 @@ This script reads the data from bronze_breweries and apply the following transfo
 - Writes the parquet file partitioned by "country", "state" and "city"
 - Writes the data into silver_breweries table for retention and recovery
 
-> For further expansion the parquet files will be sent to a S3 Bucket as shown on the architecture - /silver.
-
-`silver_orchestrator.py`
-
-This script orchestrates all previous silver scripts. If any error occurs, a json containing the error will be created and stored for further review.
-
-> For further expansion the parquet files will be sent to a S3 Bucket as shown on the architecture - /error_logs.
-
-`gold_ingestion.py`
-
-This script reads the data from silver_breweries and apply the following transformations:
+#### gold 
 
 - Truncate the gold_breweries table
 - Read data from the silver_breweries table
 - Create the view grouping by "country", "state", "city" and "brewery_type" counting the total name as "brewery_count"
 - Writes the data into gold_breweries table for retention and recovery
-
-`gold_orchestrator.py`
-
-This script orchestrates all previous gold scripts. If any error occurs, a json containing the error will be created and stored for further review.
-
-> For further expansion the parquet files will be sent to a S3 Bucket as shown on the architecture - /error_logs.
-
-`master_orchestrator.py`
-
-This script orchestrates all previous orchestrator scripts. If any error occurs, a json containing the error will be created and stored for further review.
-
-> For further expansion the parquet files will be sent to a S3 Bucket as shown on the architecture - /error_logs.
-> For further expansion the back up routine for the database will be sent to a S3 Bucket as shown on the architecture - /back_up_db.
-
-`constants.py`
-
-Dedicated module to store and centralized fixed parameters, settings, and reusable static variables.
 
 ## Overall Solution
 
@@ -195,9 +197,11 @@ To achieve this, the solution is packaged entirely using Docker Compose and cust
 
 This modular Docker approach guarantees reproducible deployments, eliminates environment drift, and ensures that both Airflow and PySpark run consistently across different environments.
 
+Also, using the Docker Compose to ensure that the monitoring tools will be up and running united with all other systems.
+
 ## Pipeline Behavior and Execution Strategy
 
-Once the pipeline is deployed, it runs on a weekly schedule, which is appropriate for this dataset’s refresh cadence. The ETL/ELT processes are intentionally simple, transparent, and optimized for performance, using a combination of Python and PySpark where scalability is beneficial.
+The ETL/ELT processes are intentionally simple, transparent, and optimized for performance, using a combination of Python and PySpark where scalability is beneficial.
 
 With this design, the entire processing workflow completes in approximately 2 to 3 minutes, and all output data is made available through the integrated Postgres database, accessible via the Postgres CLI already provided within the Airflow Compose setup.
 
@@ -245,53 +249,103 @@ By preserving the original structure, schema adjustments in downstream layers (B
 
 ## Reliability, Alerts, Monitoring & Observability
 
-Any operational failure triggers automatic email alerts configured at the Airflow level. To improve observability and support proactive incident response, the architecture integrates Airflow + Grafana.
+This project includes a production-style observability stack designed to provide full visibility over Airflow DAG executions, task behavior, logs, and operational health.
+
+The monitoring architecture is fully containerized and automatically provisioned via Docker Compose.
+
+### Observability Architecture
+
+The stack integrates the following components:
+
+- Airflow – Workflow orchestration
+- StatsD (Airflow native) – Internal metric emission
+- statsd-exporter – Converts StatsD metrics into Prometheus format
+- Prometheus – Metrics collection and storage
+- Promtail – Log shipping from containers
+- Loki – Log aggregation and indexing
+- Grafana – Dashboards and alerting engine
 
 ### Metrics
 
-Airflow natively exposes internal metrics such as:
+Airflow → StatsD → statsd-exporter → Prometheus → Grafana
 
-- Task duration
+Airflow is configured to emit internal metrics via StatsD, including:
 
-- Scheduler latency
+1. Task success/failure counters
+2. Task execution duration
+3. DAG-level execution behavior
+4. Scheduler heartbeat and health
+5. Operator execution metrics
 
-- Success/failure counts
+The statsd-exporter converts these into Prometheus-compatible metrics such as:
 
-- DAG execution time
+> airflow_task_success_total
 
-These metrics are collected and forwarded by the Grafana Agent running as an external container.
+> airflow_task_failure_total
+
+> airflow_task_duration_seconds
+
+> airflow_scheduler_heartbeat_total
+
+Prometheus scrapes these metrics and makes them available to Grafana for visualization and alerting.
 
 ### Log Forwarding
 
-The Grafana Agent also captures logs from:
+Docker Containers → Promtail → Loki → Grafana
 
-/opt/airflow/logs
-
-### Log ingestion allows for:
-
-- Full-text search
-
-- Filtering by task, DAG, execution date
-
-- Root-cause analysis
-
-### Error JSON Reports
-
-All orchestrators (Bronze, Silver, Gold) include a function to generate a detailed JSON error report whenever an exception occurs. These JSON files feed directly into the monitoring layer for:
-
-- Deep-dive troubleshooting
-
-- Automated parsing
-
-- Enhanced failure correlation
+Promtail collects logs directly from running containers (including all Airflow services).
 
 This enables:
 
-- Faster root-cause identification
+- Full-text search across logs
 
-- Ability to trigger custom Grafana alerts
+- Filtering by container, DAG, task, and execution window
 
-- Creation of dashboards with reliability KPIs
+- Fast root-cause investigation
+
+- Correlation between metrics and log spikes
+
+Example use cases:
+
+- Identify all ERROR logs from Airflow in the last 5 minutes
+
+- Inspect task-level failures alongside performance degradation
+
+- Drill down into specific container logs during incidents
+
+### Dashboards
+
+Dashboards set to include:
+
+- Task failures (last 1h)
+
+- Failures by DAG (last 6h)
+
+- Task throughput
+
+- Real-time Airflow error logs
+
+This ensures the environment is immediately observable without manual configuration.
+
+## Alerting
+
+Alerts set to include:
+
+- Task Failure Alert: Triggers if any Airflow task fails within the last 5 minutes.
+
+- Log Error Alert: Triggers if ERROR appears in Airflow logs within the last 5 minutes.
+
+Alerts are evaluated directly in Grafana using Prometheus and Loki as data sources.
+
+Notification routing is defined through provisioned contact points and policies.
+
+This allows:
+
+Immediate failure detection
+
+Early detection of silent issues (via logs)
+
+Automatic escalation via email or webhook (configurable)
 
 ## Conclusion
 
