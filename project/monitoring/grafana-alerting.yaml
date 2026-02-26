@@ -7,7 +7,7 @@ contactPoints:
       - uid: default-email
         type: email
         settings:
-          addresses: ""
+          addresses: "rachid.elihimas@gmail.com"
         disableResolveMessage: false
 
 policies:
