@@ -1,0 +1,12 @@
+apiVersion: 1
+
+providers:
+  - name: "Airflow Observability"
+    orgId: 1
+    folder: "Airflow / Observability"
+    type: file
+    disableDeletion: false
+    editable: true
+    options:
+      path: /var/lib/grafana/dashboards
+      scanIntervalSeconds: 60

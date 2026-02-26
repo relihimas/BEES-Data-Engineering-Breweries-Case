@@ -418,8 +418,11 @@ services:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin
     volumes:
-      - grafana-storage:/var/lib/grafana
-      - ./project/monitoring/grafana-datasource.yaml:/etc/grafana/provisioning/datasources/datasource.yaml
+    - grafana-storage:/var/lib/grafana
+    - ./project/monitoring/grafana-datasource.yaml:/etc/grafana/provisioning/datasources/datasource.yaml
+    - ./project/monitoring/grafana-dashboards.yaml:/etc/grafana/provisioning/dashboards/dashboards.yaml
+    - ./project/monitoring/dashboards:/var/lib/grafana/dashboards
+    - ./project/monitoring/grafana-alerting.yaml:/etc/grafana/provisioning/alerting/alerting.yaml
     depends_on:
       - loki
     networks:

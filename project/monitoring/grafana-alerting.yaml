@@ -1,0 +1,106 @@
+apiVersion: 1
+
+contactPoints:
+  - orgId: 1
+    name: default-contact-point
+    receivers:
+      - uid: default-email
+        type: email
+        settings:
+          addresses: ""
+        disableResolveMessage: false
+
+policies:
+  - orgId: 1
+    receiver: default-contact-point
+    group_by: ['alertname']
+    routes: []
+    muted: false
+    continue: false
+
+templates: []
+
+groups:
+  - orgId: 1
+    name: airflow-alerts
+    folder: "Airflow / Observability"
+    interval: 1m
+    rules:
+      # Regra 1: qualquer falha de task nos últimos 5 minutos (Prometheus)
+      - uid: airflow-task-failures
+        title: "Airflow - Falhas de tasks nas últimas 5m"
+        condition: "C"
+        data:
+          - refId: A
+            datasourceUid: prometheus
+            relativeTimeRange:
+              from: 300
+              to: 0
+            model:
+              editorMode: code
+              expr: "sum(increase(airflow_task_failure_total[5m]))"
+              instant: true
+              legendFormat: ""
+              range: false
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              expression: "A"
+              type: "threshold"
+              conditions:
+                - evaluator:
+                    type: "gt"
+                    params:
+                      - 0
+                  operator:
+                    type: "and"
+                  reducer:
+                    type: "last"
+                  type: "query"
+        noDataState: "NoData"
+        execErrState: "Error"
+        for: 0s
+        labels:
+          severity: "critical"
+        annotations:
+          summary: "Falhas de tasks nas últimas 5 minutos"
+          description: "Uma ou mais tasks do Airflow falharam recentemente."
+
+      # Regra 2: erros em logs do Airflow nos últimos 5 minutos (Loki)
+      - uid: airflow-log-errors
+        title: "Airflow - Erros em logs (últimos 5m)"
+        condition: "C"
+        data:
+          - refId: A
+            datasourceUid: loki
+            relativeTimeRange:
+              from: 300
+              to: 0
+            model:
+              editorMode: code
+              expr: "sum by (container) (count_over_time({container=~\"bees-rachid-airflow-.*\"} |= \"ERROR\" [5m]))"
+              queryType: "range"
+              refId: "A"
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              expression: "A"
+              type: "threshold"
+              conditions:
+                - evaluator:
+                    type: "gt"
+                    params:
+                      - 0
+                  operator:
+                    type: "and"
+                  reducer:
+                    type: "last"
+                  type: "query"
+        noDataState: "NoData"
+        execErrState: "Error"
+        for: 0s
+        labels:
+          severity: "warning"
+        annotations:
+          summary: "Erros em logs de Airflow nas últimas 5 minutos"
+          description: "Foram encontrados logs com nível ERROR nos containers do Airflow."
