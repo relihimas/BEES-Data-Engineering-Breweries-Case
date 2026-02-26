@@ -3,7 +3,7 @@ BEES Data Engineering - Breweries Case
 
 ## 👷 Main Architecture:
 
-<img width="3280" height="1967" alt="v3" src="https://github.com/user-attachments/assets/114f61e5-e8d5-4df7-9fe1-43d2e524963b" />
+<img width="2265" height="1557" alt="png1" src="https://github.com/user-attachments/assets/ede26a3c-560e-4105-88be-643b65aea030" />
 
 ## 📊 Project Status
 
@@ -16,13 +16,13 @@ BEES Data Engineering - Breweries Case
 The goal of this test is to assess your skills in consuming data from an API, transforming and persisting it into a data lake following the medallion architecture with three layers: raw data, curated data partitioned by location, and an analytical aggregated layer.
 
 > [!IMPORTANT]
-> __As the goal of the project is to evaluate the criteria of the description above, the project will not reflect the architecture drawn interely.
 > The ideia is to show a high scalable ecossystem that can handle further projects and our focus will be the Docker Compose with Airflow, Postgres and Spark.__
 
 ## Overview
 
 - A docker-compose.yml file runs Airflow, Postgres, and Spark in Docker containers.
 - Python scripts reach the Breweries data source to extract, transform and load the data into a Postgres database, orchestrated through Airflow on predefined schedule.
+- Grafana orchestrates the monitoring and alerts using Loki, Promtail and Prometheus.
 
 ## Features
 - Breweries Data: Open Brewery DB API to fetch data, listing breweries companies: [Open Brewery DB](https://www.openbrewerydb.org/).
@@ -63,14 +63,8 @@ user: airflow
 password: airflow
 
 You will land onto the Airflow mainpage. Go to the DAGs section.
-The pipeline is orchestrated by a Master Orchestrator which will conduce the three main other Orchestrators.
-You can start the proccess manually by executing the Master Orchestrator which will orchestrate the entire pipeline or running each Orchestrator following the step Bronze > Silver > Gold.
-
-## DAG Schedules:
-
-|Master Orchestrator|Bronze Orchestrator|Silver Orchestrator|Gold Orchestrator|
-|---|---|---|---|
-|@weekly|pushed by Master|pushed by Bronze|pushed by Silver|
+There will be found two DAGs, the "breweries_full_pipeline" which will orchestrate all the project and the "run_pipeline_tests" which will run all unit tests for each layer.
+You can start the proccess manually by executing the DAGs.
 
 For checking the data you can go to the Postgres CLI and 
 
@@ -108,6 +102,8 @@ And SELECT * or SELECT COUNT(*) the tables informed before.
    ```
 
 ## Detailing the Pipeline
+
+On the folder ./project you will find a folder for each layer and a core folder, to sustain the 
 
 `bronze_raw_extraction.py`
 
