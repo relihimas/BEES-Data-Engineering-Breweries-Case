@@ -16,7 +16,7 @@ BEES Data Engineering - Breweries Case
 The goal of this test is to assess your skills in consuming data from an API, transforming and persisting it into a data lake following the medallion architecture with three layers: raw data, curated data partitioned by location, and an analytical aggregated layer.
 
 > [!IMPORTANT]
-> The ideia is to show a high scalable ecossystem that can handle further projects and our focus will be the Docker Compose with Airflow, Postgres and Spark.__
+> The ideia is to show a high scalable ecossystem that can handle further projects and our focus will be the Docker Compose with Airflow, Postgres and Spark.
 
 ## Overview
 
