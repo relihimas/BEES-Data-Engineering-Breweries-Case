@@ -267,6 +267,9 @@ The stack integrates the following components:
 
 ### Metrics
 
+Grafana user: admin
+Grafana password: admin
+
 Airflow → StatsD → statsd-exporter → Prometheus → Grafana
 
 Airflow is configured to emit internal metrics via StatsD, including:
